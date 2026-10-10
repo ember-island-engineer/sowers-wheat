@@ -1,96 +1,160 @@
 import {
-  AbsoluteCenter,
   Box,
   Button,
-  Divider,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
   Flex,
-  Icon,
+  HStack,
+  IconButton,
   Image,
   Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
+  Stack,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { FaPaypal } from 'react-icons/fa';
+import { useEffect } from 'react';
+import { HiOutlineMenuAlt3 } from 'react-icons/hi';
 
-const routes = [
-  { name: 'Home', path: '/' },
-  { name: 'About', path: '/about' },
-  { name: 'Biography', path: '/biography' },
-  { name: 'Devotions', path: '/devotions' },
-  { name: 'Articles', path: '/articles' },
-  { name: 'Expositions', path: '/expositions' },
-];
+import DonateModal from '~/lib/components/DonateModal';
+
+import { isActiveRoute, routes } from './routes';
+
+export const Logo = ({ light = false }: { light?: boolean }) => (
+  <Link
+    as={NextLink}
+    href="/"
+    display="flex"
+    alignItems="center"
+    gap={3}
+    _hover={{ textDecoration: 'none' }}
+  >
+    <Image src="/assets/logo-192.png" alt="" w="44px" h="44px" />
+    <Text
+      fontFamily="heading"
+      fontWeight="bold"
+      fontSize="xl"
+      color={light ? 'white' : 'brand.800'}
+      whiteSpace="nowrap"
+    >
+      Sower’s Wheat
+    </Text>
+  </Link>
+);
 
 const Header = () => {
-  const router = useRouter();
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { pathname, events } = useRouter();
+  const donate = useDisclosure();
+  const menu = useDisclosure();
+
+  useEffect(() => {
+    events.on('routeChangeStart', menu.onClose);
+    return () => events.off('routeChangeStart', menu.onClose);
+  }, [events, menu.onClose]);
 
   return (
-    <Box as="header" px="20px" color="white">
-      <Flex justify="space-between" align="center">
-        <Flex align="center" justify="center" color="white" mt="20px">
-          <Image src="/assets/logo.png" sizes="sm" w="60px" h="60px" />
-          <Text fontWeight="bold">{`Sower's wheat`}</Text>
-        </Flex>
-        <Button mr="3" bgColor="brand.100" onClick={onOpen}>
-          Donate
-        </Button>
-      </Flex>
+    <Box
+      as="header"
+      position="sticky"
+      top={0}
+      zIndex="sticky"
+      bg="rgba(253, 251, 247, 0.92)"
+      backdropFilter="saturate(180%) blur(10px)"
+      borderBottom="1px solid"
+      borderColor="cream.300"
+    >
       <Flex
-        w="100%"
-        // centering an overflowing row clips its start, so left-align when it scrolls
-        justify={{ base: 'flex-start', md: 'center' }}
-        my={{ base: 2, md: 2 }}
-        overflowX={{ base: 'scroll', md: 'hidden' }}
+        maxW="6xl"
+        mx="auto"
+        px={{ base: 4, md: 8 }}
+        h={{ base: '64px', md: '76px' }}
+        align="center"
+        justify="space-between"
       >
-        {routes.map((route) => (
-          <Link mr="5" href={route.path} key={route.path}>
-            <Text
-              fontSize={{ md: 'lg', base: 'md' }}
-              decoration={router.pathname === route.path ? 'underline' : ''}
-            >
-              {route.name.toUpperCase()}
-            </Text>
-          </Link>
-        ))}
-      </Flex>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Donate</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Image src="paynow.png" my={5} w="200px" h="200px" mx="auto" />
-            <Box position="relative" padding="10">
-              <Divider />
-              <AbsoluteCenter bg="white" px="4">
-                or
-              </AbsoluteCenter>
-            </Box>
-            <Box w="90%" mx="auto">
-              <Button
-                leftIcon={<Icon as={FaPaypal} />}
-                w="100%"
-                my={3}
-                onClick={() =>
-                  window.open(
-                    'https://www.paypal.com/paypalme/sowerswheat?country.x=SG&locale.x=en_GB'
-                  )
-                }
+        <Logo />
+        <HStack as="nav" spacing={1} display={{ base: 'none', lg: 'flex' }}>
+          {routes.map((route) => {
+            const active = isActiveRoute(pathname, route.path);
+            return (
+              <Link
+                as={NextLink}
+                key={route.path}
+                href={route.path}
+                px={3}
+                py={2}
+                fontSize="sm"
+                fontWeight={active ? '700' : '500'}
+                color={active ? 'brand.800' : 'muted'}
+                position="relative"
+                _hover={{ color: 'brand.800', textDecoration: 'none' }}
+                _after={{
+                  content: '""',
+                  position: 'absolute',
+                  left: 3,
+                  right: 3,
+                  bottom: 0,
+                  height: '2px',
+                  borderRadius: 'full',
+                  bg: active ? 'gold.400' : 'transparent',
+                }}
               >
-                Paypal
-              </Button>
-            </Box>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+                {route.name}
+              </Link>
+            );
+          })}
+        </HStack>
+        <HStack spacing={2}>
+          <Button size={{ base: 'sm', md: 'md' }} onClick={donate.onOpen}>
+            Donate
+          </Button>
+          <IconButton
+            aria-label="Open menu"
+            icon={<HiOutlineMenuAlt3 size={22} />}
+            variant="ghost"
+            color="brand.800"
+            display={{ base: 'inline-flex', lg: 'none' }}
+            onClick={menu.onOpen}
+          />
+        </HStack>
+      </Flex>
+
+      <Drawer isOpen={menu.isOpen} onClose={menu.onClose} placement="right">
+        <DrawerOverlay />
+        <DrawerContent bg="cream.50">
+          <DrawerCloseButton mt={3} />
+          <DrawerBody pt={20} px={6}>
+            <Stack as="nav" spacing={1}>
+              {routes.map((route) => {
+                const active = isActiveRoute(pathname, route.path);
+                return (
+                  <Link
+                    as={NextLink}
+                    key={route.path}
+                    href={route.path}
+                    fontFamily="heading"
+                    fontSize="2xl"
+                    py={2}
+                    color={active ? 'brand.800' : 'muted'}
+                    fontWeight={active ? '700' : '400'}
+                    borderLeft="3px solid"
+                    borderColor={active ? 'gold.400' : 'transparent'}
+                    pl={4}
+                    _hover={{ textDecoration: 'none', color: 'brand.800' }}
+                  >
+                    {route.name}
+                  </Link>
+                );
+              })}
+            </Stack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      <DonateModal isOpen={donate.isOpen} onClose={donate.onClose} />
     </Box>
   );
 };

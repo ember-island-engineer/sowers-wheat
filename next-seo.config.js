@@ -1,20 +1,23 @@
+const description =
+  'Devotions, articles and New Testament expositions by Adrian and Mae Chua — restoring intimacy in marriages through Biblical principles.';
+
 /** @type {import('next-seo').DefaultSeoProps} */
 const defaultSEOConfig = {
-  title: 'Sowers Wheat',
-  titleTemplate: '%s | Sowers Wheat',
-  defaultTitle: 'Sowers Wheat',
-  description: 'Sowers wheat ministry',
+  title: 'Sower’s Wheat',
+  titleTemplate: '%s | Sower’s Wheat',
+  defaultTitle: 'Sower’s Wheat',
+  description,
   openGraph: {
     url: 'https://sowerswheat.com',
-    title: 'Sowers Wheat',
-    description: 'Sowers wheat ministry',
+    title: 'Sower’s Wheat',
+    description,
     images: [
       {
-        url: 'public/favicon.ico',
-        alt: 'Sowers Wheat',
+        url: 'https://sowerswheat.com/assets/madagascar.jpeg',
+        alt: 'Adrian and Mae Chua at a marriage seminar in Madagascar',
       },
     ],
-    site_name: 'Sowers Wheat',
+    site_name: 'Sower’s Wheat',
   },
 };
 
