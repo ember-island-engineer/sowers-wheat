@@ -1,4 +1,4 @@
-import { Box, Flex, Text, Image } from '@chakra-ui/react';
+import { Box, Flex, Text, Image, Link } from '@chakra-ui/react';
 
 const About = () => {
   return (
@@ -51,6 +51,9 @@ const About = () => {
             had travelled together ministering in many nations, touching lives
             and bearing testimony to the faithfulness of God.
           </Text>
+          <Link href="/biography" fontWeight="bold" textDecoration="underline">
+            Read their full story in <i>Naturally Supernatural</i> →
+          </Link>
         </Box>
       </Flex>
     </Flex>

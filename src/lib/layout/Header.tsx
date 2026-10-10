@@ -22,6 +22,7 @@ import { FaPaypal } from 'react-icons/fa';
 const routes = [
   { name: 'Home', path: '/' },
   { name: 'About', path: '/about' },
+  { name: 'Biography', path: '/biography' },
   { name: 'Devotions', path: '/devotions' },
   { name: 'Articles', path: '/articles' },
   { name: 'Expositions', path: '/expositions' },
@@ -44,7 +45,8 @@ const Header = () => {
       </Flex>
       <Flex
         w="100%"
-        justify="center"
+        // centering an overflowing row clips its start, so left-align when it scrolls
+        justify={{ base: 'flex-start', md: 'center' }}
         my={{ base: 2, md: 2 }}
         overflowX={{ base: 'scroll', md: 'hidden' }}
       >
