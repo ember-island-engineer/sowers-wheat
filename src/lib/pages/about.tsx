@@ -27,7 +27,7 @@ const FACTS = [
   {
     label: 'Ministered in',
     value:
-      'Southeast Asia, China, Taiwan, South Africa, North America and Brazil',
+      'Singapore, Southeast Asia, China, Japan, Taiwan, South Africa, North America and Brazil',
   },
 ];
 

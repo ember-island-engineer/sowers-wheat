@@ -43,8 +43,10 @@ type Props = {
 };
 
 const NATIONS = [
+  'Singapore',
   'Southeast Asia',
   'China',
+  'Japan',
   'Taiwan',
   'South Africa',
   'North America',
