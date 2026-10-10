@@ -1,28 +1,12 @@
-import fs from 'fs/promises';
-
 import imageMap from '../../lib/data/image-map.json';
+import { getArticles } from '~/lib/content';
 import Articles from '~/lib/pages/article';
-import { calculateReadTime, getCrux } from '~/lib/utils';
 
 export const getStaticProps = async () => {
-  const rootPath = 'src/lib/data/articles';
-  const articleFileNames = await fs.readdir(rootPath);
-  const articles = await Promise.all(
-    articleFileNames.map(async (filename) => {
-      const content = (await fs.readFile(`${rootPath}/${filename}`)).toString();
-      const title = filename.split('.html')[0].replaceAll('-', ' ');
-      const link = filename.split('.html')[0];
-      const readTime = calculateReadTime(content);
-      return {
-        content,
-        title,
-        link,
-        readTime,
-        image: imageMap[title],
-        crux: getCrux(content),
-      };
-    })
-  );
+  const articles = (await getArticles()).map((article) => ({
+    ...article,
+    image: (imageMap as Record<string, string>)[article.title] ?? null,
+  }));
   return { props: { articles } };
 };
 

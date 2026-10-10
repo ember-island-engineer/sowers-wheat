@@ -1,12 +1,19 @@
 {
-  "short_name": "nextarter-chakra",
-  "name": "Next.js App Template",
+  "short_name": "Sower’s Wheat",
+  "name": "Sower’s Wheat",
   "lang": "en",
   "start_url": "/",
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "background_color": "#FDFBF7",
+  "theme_color": "#FDFBF7",
   "dir": "ltr",
   "display": "standalone",
   "orientation": "portrait",
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/assets/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
 }

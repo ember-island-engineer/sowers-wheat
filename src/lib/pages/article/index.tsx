@@ -1,47 +1,43 @@
-import { Flex, Grid, GridItem } from '@chakra-ui/react';
+import { Box, SimpleGrid } from '@chakra-ui/react';
+import { NextSeo } from 'next-seo';
 
 import ArticleCard from '~/lib/components/articles/ArticleCard';
+import PageHeader from '~/lib/components/PageHeader';
+import type { ContentSummary } from '~/lib/content';
 
-const Articles = ({
-  articles,
-}: {
-  articles: {
-    title: string;
-    content: string;
-    image: string;
-    crux: string;
-    readTime: number;
-  }[];
-}) => {
+type Props = {
+  articles: (ContentSummary & { image: string | null })[];
+};
+
+const Articles = ({ articles }: Props) => {
   return (
-    <Flex
-      direction="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="70vh"
-      mb={8}
-      w="full"
-      bg="#F3E9D9"
-    >
-      <Grid
-        templateColumns={{ md: 'repeat(3, 1fr)', base: 'repeat(1, 1fr)' }}
-        gap={3}
-        mx={5}
-        py={9}
+    <Box>
+      <NextSeo title="Articles" />
+      <PageHeader
+        eyebrow="Articles"
+        title="Reflections for everyday faith"
+        description="Teaching on prayer, parenting, mentoring, identity and walking in love, written to help you apply God’s Word to ordinary life."
+      />
+      <SimpleGrid
+        maxW="6xl"
+        mx="auto"
+        px={{ base: 4, md: 8 }}
+        py={{ base: 10, md: 16 }}
+        columns={{ base: 1, sm: 2, lg: 3 }}
+        spacing={{ base: 5, md: 7 }}
       >
-        {articles &&
-          articles.map(({ crux, title, readTime, image }) => (
-            <GridItem>
-              <ArticleCard
-                title={title}
-                crux={crux}
-                imageSrc={image}
-                readTime={readTime}
-              />
-            </GridItem>
-          ))}
-      </Grid>
-    </Flex>
+        {articles.map(({ slug, title, excerpt, readTime, image }) => (
+          <ArticleCard
+            key={slug}
+            href={`/articles/${slug}`}
+            title={title}
+            excerpt={excerpt}
+            imageSrc={image ?? undefined}
+            readTime={readTime}
+          />
+        ))}
+      </SimpleGrid>
+    </Box>
   );
 };
 
