@@ -1,11 +1,11 @@
 import {
   Box,
   Button,
-  Flex,
   Grid,
   Heading,
   HStack,
   Icon,
+  Image,
   Stack,
   Text,
 } from '@chakra-ui/react';
@@ -15,41 +15,20 @@ import { FiBookOpen, FiDownload } from 'react-icons/fi';
 import { Eyebrow } from '~/lib/components/PageHeader';
 
 const PDF_PATH = '/books/naturally-supernatural.pdf';
+const COVER_PATH = '/assets/naturally-supernatural-cover.jpg';
 
 const BookCover = () => (
-  <Flex
-    direction="column"
-    align="center"
-    justify="space-between"
-    bg="white"
+  <Image
+    src={COVER_PATH}
+    alt="Front cover of Naturally Supernatural: The story of Adrian & Mae Chua"
+    htmlWidth={901}
+    htmlHeight={1350}
     w={{ base: '230px', md: '300px' }}
-    h={{ base: '326px', md: '425px' }}
-    py={{ base: 12, md: 16 }}
-    px={5}
+    h="auto"
     borderRadius="sm"
-    borderLeft="10px solid"
-    borderLeftColor="brand.700"
     boxShadow="0 30px 60px -20px rgba(32, 38, 29, 0.45), 0 10px 20px -10px rgba(32, 38, 29, 0.25)"
-    textAlign="center"
     transform={{ md: 'rotate(-2deg)' }}
-  >
-    <Box>
-      <Heading
-        fontSize={{ base: '2xl', md: '3xl' }}
-        lineHeight="short"
-        color="ink"
-      >
-        Naturally Supernatural
-      </Heading>
-      <Box mx="auto" my={4} w="32px" h="2px" bg="gold.400" />
-      <Text fontSize={{ base: 'xs', md: 'sm' }} color="muted">
-        The Life and Faith Journey of Adrian & Mae Chua
-      </Text>
-    </Box>
-    <Text fontSize={{ base: 'sm', md: 'md' }} fontFamily="heading">
-      Vinny Tan
-    </Text>
-  </Flex>
+  />
 );
 
 const Biography = () => {
