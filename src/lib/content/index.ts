@@ -5,6 +5,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 
+import { readingSlug } from '../../../reading-slugs';
 import { calculateReadTime, getCrux } from '~/lib/utils';
 
 const DATA_DIR = 'src/lib/data';
@@ -86,10 +87,10 @@ const listFlat = async (dir: string): Promise<ContentSummary[]> => {
   return Promise.all(
     files.map(async (file) => {
       const content = await readHtml(dir, file);
-      const slug = file.replace('.html', '');
+      const slug = readingSlug(file);
       return {
         slug,
-        title: slug.replaceAll('-', ' '),
+        title: file.replace('.html', '').replaceAll('-', ' '),
         readTime: calculateReadTime(content),
         excerpt: getCrux(content),
       };
@@ -102,7 +103,7 @@ export const getArticles = () => listFlat('articles');
 export const getExpositions = async () => {
   const expositions = await listFlat('expositions');
   const rank = (slug: string) => {
-    const index = NEW_TESTAMENT_ORDER.indexOf(slug);
+    const index = NEW_TESTAMENT_ORDER.map(readingSlug).indexOf(slug);
     return index === -1 ? NEW_TESTAMENT_ORDER.length : index;
   };
   return expositions.sort((a, b) => rank(a.slug) - rank(b.slug));
@@ -112,8 +113,13 @@ export const getFlatEntry = async (
   dir: 'articles' | 'expositions',
   slug: string
 ) => {
-  const title = slug.replaceAll('-', ' ');
-  const content = await readHtml(dir, `${slug}.html`);
+  const files = await fs.readdir(path.join(DATA_DIR, dir));
+  const file = files.find(
+    (entry) => entry.endsWith('.html') && readingSlug(entry) === slug
+  );
+  if (!file) throw new Error(`Unknown reading: ${dir}/${slug}`);
+  const title = file.replace('.html', '').replaceAll('-', ' ');
+  const content = await readHtml(dir, file);
   return {
     title,
     readTime: calculateReadTime(content),
@@ -137,14 +143,15 @@ export const getDevotionSeries = async (
         .sort((a, b) => parseNumbered(a)[0] - parseNumbered(b)[0]);
       const devotions = await Promise.all(
         files.map(async (id) => ({
-          id,
+          id: readingSlug(id),
           title: parseNumbered(id)[1],
-          href: `/devotions/${type}/${id}`,
+          href: `/devotions/${readingSlug(type)}/${readingSlug(id)}`,
           readTime: calculateReadTime(await readHtml('devotions', type, id)),
         }))
       );
       return {
-        type,
+        type: readingSlug(type),
+        order: parseNumbered(type)[0],
         title: parseNumbered(type)[1],
         image: images[type]?.image ?? '',
         devotions,
@@ -152,26 +159,31 @@ export const getDevotionSeries = async (
     })
   );
 
-  return series.sort(
-    (a, b) => parseNumbered(a.type)[0] - parseNumbered(b.type)[0]
-  );
+  return series.sort((a, b) => a.order - b.order);
 };
 
 export const getDevotion = async (type: string, id: string) => {
-  const title = parseNumbered(id)[1];
-  const content = await readHtml('devotions', type, id);
-  const files = (await fs.readdir(path.join(DATA_DIR, 'devotions', type)))
+  const directories = await fs.readdir(path.join(DATA_DIR, 'devotions'));
+  const sourceType = directories.find((entry) => readingSlug(entry) === type);
+  if (!sourceType) throw new Error(`Unknown devotion series: ${type}`);
+  const files = (await fs.readdir(path.join(DATA_DIR, 'devotions', sourceType)))
     .filter((f) => f.endsWith('.html'))
     .sort((a, b) => parseNumbered(a)[0] - parseNumbered(b)[0]);
-  const index = files.indexOf(id);
+  const index = files.findIndex((file) => readingSlug(file) === id);
+  if (index === -1) throw new Error(`Unknown devotion: ${type}/${id}`);
+  const title = parseNumbered(files[index])[1];
+  const content = await readHtml('devotions', sourceType, files[index]);
   const link = (file?: string): NavLink =>
     file
-      ? { title: parseNumbered(file)[1], href: `/devotions/${type}/${file}` }
+      ? {
+          title: parseNumbered(file)[1],
+          href: `/devotions/${type}/${readingSlug(file)}`,
+        }
       : null;
 
   return {
     title,
-    seriesTitle: parseNumbered(type)[1],
+    seriesTitle: parseNumbered(sourceType)[1],
     position: index + 1,
     total: files.length,
     readTime: calculateReadTime(content),

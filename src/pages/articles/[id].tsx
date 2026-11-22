@@ -1,12 +1,10 @@
-import fs from 'fs/promises';
-
 import ReadingLayout from '~/lib/components/ReadingLayout';
-import { getFlatEntry } from '~/lib/content';
+import { getArticles, getFlatEntry } from '~/lib/content';
 
 export const getStaticPaths = async () => {
-  const articleFiles = await fs.readdir('src/lib/data/articles');
-  const paths = articleFiles.map((filename) => ({
-    params: { id: filename.split('.html')[0] },
+  const articles = await getArticles();
+  const paths = articles.map(({ slug }) => ({
+    params: { id: slug },
   }));
   return { paths, fallback: false };
 };
