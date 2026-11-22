@@ -1,31 +1,55 @@
-/** Give unambiguous legacy quote headings semantic markup, preserving the text. */
+const reflectionLabel = '<p class="reflection-label">Points to ponder</p>';
+const reflectionBox = (content) =>
+  `<aside class="reflection" aria-label="Points to ponder">${content}</aside>`;
+
+// Word exports sometimes put multiple paragraphs inside a single heading.
+const paragraphs = (content) =>
+  `<p>${content.replace(/^\s*<p>/i, '').replace(/<\/p>\s*$/i, '')}</p>`;
+
+/** Restyle existing heading emphasis across all readings; never promote body paragraphs. */
 const formatReading = (html) => {
-  const quoted = html.replace(
+  let reflecting = false;
+  const formatted = html.replace(
     /<h1>([\s\S]*?)<\/h1>/g,
     (heading, content, offset) => {
-      // Keep the document title and malformed blocks for the existing title handling.
-      if (!html.slice(0, offset).trim() || /<\/?p[\s>]/.test(content))
-        return heading;
-      const text = content.replace(/<[^>]+>/g, '').trim();
-      const standaloneQuote =
-        /^(?:[1-3]?\s*[A-Za-z. ]+\s*\d+:\d+[\w\d\s,:.–—-]*\s*[–—-]?\s*)?“[^“”]+”\s*(?:\([^()]+\))?[.!]?\s*$/;
-      if (text.length < 40 || !standaloneQuote.test(text)) return heading;
-      return `<blockquote><p>${content}</p></blockquote>`;
+      // Preserve the document title for the existing leading-title handling.
+      if (!html.slice(0, offset).trim()) return heading;
+      const text = content
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const marker =
+        /^\s*(?:<(?:strong|em)>\s*)*Points? to Ponder:\s*(?:<\/(?:strong|em)>\s*)*/i.exec(
+          content
+        );
+      if (marker) {
+        reflecting = true;
+        const prompt = content
+          .slice(marker[0].length)
+          .replace(/^<\/p>\s*<p>/i, '');
+        return prompt.trim()
+          ? reflectionBox(reflectionLabel + paragraphs(prompt))
+          : reflectionLabel;
+      }
+      if (!text) return heading;
+      if (reflecting) return reflectionBox(paragraphs(content));
+
+      const quotedPassage =
+        /^[“"]/.test(text) || /\d\s*:\s*\d[^“]*“/.test(text);
+      const sentence =
+        text.split(/\s+/).length >= 7 && /[.!?][”"’\s)]*$/.test(text);
+      const multipleSentences = text.length > 130 && /[.!?]\s+[A-Z]/.test(text);
+      if (!quotedPassage && !sentence && !multipleSentences) return heading;
+      return `<blockquote>${paragraphs(content)}</blockquote>`;
     }
   );
 
-  // These concluding sections contain prompts, sometimes exported as broken h1/p
-  // combinations. Keep their paragraphs together in a labelled reflection box.
-  const marker =
-    /<h1>\s*(?:<(?:strong|em)>\s*)*Points? to Ponder:\s*(?:<\/(?:strong|em)>\s*)*(<\/h1>|<\/p><p>)/i;
-  const match = marker.exec(quoted);
-  if (!match) return quoted;
-  const prompts = quoted
-    .slice(match.index + match[0].length)
-    .replace(/<h1>/g, '<p>')
-    .replace(/<\/h1>/g, '</p>');
-  const opening = match[1] === '</p><p>' ? '<p>' : '';
-  return `${quoted.slice(0, match.index)}<aside class="reflection" aria-label="Points to ponder"><p class="reflection-label">Points to ponder</p>${opening}${prompts}</aside>`;
+  // Join an existing reflection label only to an immediately adjacent heading
+  // callout. Ordinary paragraphs between them remain outside and unchanged.
+  return formatted.replace(
+    /<p class="reflection-label">Points to ponder<\/p>\s*<aside class="reflection" aria-label="Points to ponder">/g,
+    `<aside class="reflection" aria-label="Points to ponder">${reflectionLabel}`
+  );
 };
 
 module.exports = { formatReading };

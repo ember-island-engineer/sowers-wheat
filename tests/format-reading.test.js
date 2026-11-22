@@ -55,9 +55,60 @@ test('formatting preserves every reading’s words and is idempotent', () => {
         const source = fs.readFileSync(file, 'utf8');
         const formatted = formatReading(source);
         assert.equal(words(formatted), words(source), file);
+        const body = source.replace(/<h1>[\s\S]*?<\/h1>/g, '');
+        for (const paragraph of body.match(/<p>[\s\S]*?<\/p>/g) || []) {
+          assert.ok(
+            formatted.includes(paragraph),
+            `Body paragraph changed: ${file}`
+          );
+        }
         assert.equal(formatReading(formatted), formatted, file);
       }
     }
   };
   visit(path.join(__dirname, '../src/lib/data'));
+});
+
+test('existing emphasized statements use callouts even without quotation marks', () => {
+  const statement =
+    'Personally, I am convicted that the family sphere is the foundation of all spheres. Let me explain.';
+  const section =
+    'Understanding the concept of the Love Plumb Line &amp; Mankind’s Love Deficit';
+  const result = formatReading(
+    `${title}<h1>${statement}</h1><h1>${section}</h1>`
+  );
+  assert.ok(result.includes(`<blockquote><p>${statement}</p></blockquote>`));
+  assert.ok(result.includes(`<h1>${section}</h1>`));
+});
+
+test('ordinary paragraphs stay unchanged, even quoted text and reflection paragraphs', () => {
+  const quote =
+    '<p>The late Mother Theresa said it well, “If you want to change the world, go home and love your family”.</p>';
+  const prompt = '<p>Are you intentionally building a healthy family?</p>';
+  const result = formatReading(
+    `${title}${quote}<h1>Points to Ponder:</h1>${prompt}`
+  );
+  assert.ok(result.includes(quote));
+  assert.ok(result.includes(prompt));
+  assert.ok(!result.includes('<blockquote>'));
+  assert.ok(!result.includes('<aside'));
+});
+
+test('the supplied Seven Spheres examples use callouts without changing body text', () => {
+  const source = fs.readFileSync(
+    path.join(
+      __dirname,
+      '../src/lib/data/devotions/1)-Marriage/2)-The-Seven-Spheres.html'
+    ),
+    'utf8'
+  );
+  const result = formatReading(source);
+  assert.match(result, /<blockquote><p>Personally, I am convicted/);
+  assert.match(
+    result,
+    /<aside class="reflection"[^>]*><p class="reflection-label">Points to ponder<\/p><p>Are you intentionally/
+  );
+  assert.match(result, /<h1>Understanding the concept of the Love Plumb Line/);
+  assert.match(result, /<p>The late Mother Theresa said it well,/);
+  assert.ok(!result.includes('<blockquote><p>The late Mother Theresa'));
 });
