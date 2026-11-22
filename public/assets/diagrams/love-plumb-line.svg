@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" width="1000" height="560" role="img" aria-labelledby="title description">
+  <title id="title">Love plumb line</title>
+  <desc id="description">Three lines share a point at the top: black human love slopes left, red God’s love descends vertically, and green rejection slopes right. The gap between human love and God’s love is the love deficit; the mirrored gap on the right represents rejection.</desc>
+  <!-- Reconstructed from the Word drawing in “2) The Seven Spheres.docx”. -->
+  <rect x="10" y="10" width="980" height="540" rx="5" fill="white" stroke="#bdcfea" stroke-width="24"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#70a9cc"/>
+    </marker>
+  </defs>
+  <g fill="none" stroke-width="3">
+    <path d="M 240 350 L 530 85" stroke="#000"/>
+    <path d="M 530 85 L 855 375" stroke="#00b050"/>
+    <path d="M 530 85 L 534 425" stroke="#c00000"/>
+    <path d="M 460 149 C 452 208 606 208 603 150" stroke="#535a60" stroke-width="2"/>
+    <path d="M 452 225 L 478 187 M 620 228 L 595 188" stroke="#70a9cc" stroke-width="1.5" marker-end="url(#arrow)"/>
+  </g>
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="30" fill="#111">
+    <text x="135" y="330">Human<tspan x="135" dy="35">love</tspan></text>
+    <text x="415" y="265">Love<tspan x="415" dy="35">deficit</tspan><tspan x="415" dy="35">(gap)</tspan></text>
+    <text x="553" y="260">Rejection</text>
+    <text x="497" y="465">God’s<tspan x="497" dy="35">love</tspan></text>
+  </g>
+</svg>
