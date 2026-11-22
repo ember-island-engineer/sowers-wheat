@@ -5,6 +5,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 
+import { formatReading } from '../../../reading-format';
 import { readingSlug } from '../../../reading-slugs';
 import { calculateReadTime, getCrux } from '~/lib/utils';
 
@@ -78,7 +79,9 @@ export const stripLeadingTitle = (html: string, title: string) => {
 };
 
 const readHtml = async (...segments: string[]) =>
-  (await fs.readFile(path.join(DATA_DIR, ...segments))).toString();
+  formatReading(
+    (await fs.readFile(path.join(DATA_DIR, ...segments))).toString()
+  );
 
 const listFlat = async (dir: string): Promise<ContentSummary[]> => {
   const files = (await fs.readdir(path.join(DATA_DIR, dir))).filter((f) =>
